@@ -1,0 +1,5 @@
+build-info:
+  message: "Library book service qa version"
+  contactDetails:
+    developer: "JakMi29"
+    version: "1.0"

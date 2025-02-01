@@ -3,6 +3,7 @@ package com.library.users.controller.rest;
 import com.library.users.business.service.UserService;
 import com.library.users.controller.dto.ErrorResponseDto;
 import com.library.users.controller.dto.ResponseDto;
+import com.library.users.controller.dto.UserBuildInfoDto;
 import com.library.users.controller.dto.UserDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -33,6 +34,8 @@ import org.springframework.web.bind.annotation.*;
 public class UsersController {
 
     private UserService userService;
+    private UserBuildInfoDto bookBuildInfoDto;
+
 
     @Operation(
             summary = "Create Account REST API",
@@ -141,8 +144,13 @@ public class UsersController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(new ResponseDto("200", "Successfully delete user"));
-
     }
 
+    @GetMapping("/build-info")
+    public ResponseEntity<UserBuildInfoDto> getBuildInfo() {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(bookBuildInfoDto);
+    }
 
 }

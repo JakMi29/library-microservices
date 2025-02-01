@@ -1,6 +1,10 @@
 server:
   port: 8090
 spring:
+  application:
+    name: "books"
+  profiles:
+    active: "prod"
   datasource:
     url: jdbc:postgresql://localhost:5432/library_books
     driver-class-name: org.postgresql.Driver
@@ -13,3 +17,11 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  config:
+    import: "optional:configserver:http://localhost:8071/"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

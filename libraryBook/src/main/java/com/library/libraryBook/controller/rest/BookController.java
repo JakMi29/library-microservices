@@ -1,6 +1,7 @@
 package com.library.libraryBook.controller.rest;
 
 import com.library.libraryBook.business.service.BookService;
+import com.library.libraryBook.controller.dto.BookBuildInfoDto;
 import com.library.libraryBook.controller.dto.BookDto;
 import com.library.libraryBook.controller.dto.ErrorResponseDto;
 import com.library.libraryBook.controller.dto.ResponseDto;
@@ -35,6 +36,7 @@ import org.springframework.web.bind.annotation.*;
 public class BookController {
 
     private BookService bookService;
+    private BookBuildInfoDto bookBuildInfoDto;
 
     @Operation(
             summary = "Create book REST API",
@@ -201,6 +203,31 @@ public class BookController {
                 .status(HttpStatus.OK)
                 .body(new ResponseDto("200", "Successfully delete book"));
 
+    }
+
+    @Operation(
+            summary = "Get Build information",
+            description = "Get Build information that is deployed into cards microservice"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "HTTP Status OK"
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "HTTP Status Internal Server Error",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            )
+    }
+    )
+    @GetMapping("/build-info")
+    public ResponseEntity<BookBuildInfoDto> getBuildInfo() {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(bookBuildInfoDto);
     }
 
 

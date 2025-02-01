@@ -1,0 +1,5 @@
+build-info:
+  message: "Users service"
+  contactDetails:
+    developer: "JakMi29"
+    version: "1.0"
