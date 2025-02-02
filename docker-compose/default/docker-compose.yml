@@ -19,7 +19,7 @@ services:
       service: microservice-base-config
 
   accounts:
-    image: "library/users:s6"
+    image: "library/users"
     container_name: users-ms
     ports:
       - "8080:8080"
