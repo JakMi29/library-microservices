@@ -1,7 +1,42 @@
 services:
+  rabbit:
+    image: rabbitmq:4.0-management
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
+
+  usersdb:
+    container_name: usersdb
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: usersdb
+    extends:
+      file: common-config.yml
+      service: microservice-db-config
+
+  booksdb:
+    container_name: booksdb
+    ports:
+      - 5433:5432
+    environment:
+      POSTGRES_DB: booksdb
+    extends:
+      file: common-config.yml
+      service: microservice-db-config
 
   configserver:
-    image: "library/configserver"
+    image: "configserver"
     container_name: configserver-ms
     ports:
       - "8071:8071"
@@ -18,34 +53,40 @@ services:
       file: common-config.yml
       service: microservice-base-config
 
-  accounts:
-    image: "library/users"
+  users:
+    image: "users"
     container_name: users-ms
     ports:
       - "8080:8080"
     depends_on:
+      usersdb:
+        condition: service_healthy
       configserver:
         condition: service_healthy
     environment:
       SPRING_APPLICATION_NAME: "users"
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://usersdb:5432/usersdb"
     extends:
       file: common-config.yml
       service: microservice-configserver-config
 
-  loans:
-    image: "library/books"
+  books:
+    image: "library-book"
     container_name: books-ms
     ports:
       - "8090:8090"
     depends_on:
+      booksdb:
+        condition: service_healthy
       configserver:
         condition: service_healthy
     environment:
       SPRING_APPLICATION_NAME: "books"
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://booksdb:5432/booksdb"
     extends:
       file: common-config.yml
       service: microservice-configserver-config
 
 networks:
-  eazybank:
+  library:
     driver: "bridge"
