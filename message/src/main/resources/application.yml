@@ -1,0 +1,20 @@
+server:
+  port: 9011
+
+spring:
+  application:
+    name: "message"
+  cloud:
+    function:
+      definition: sendMessage
+    stream:
+      bindings:
+        sendMessage-in-0:
+          destination: send-message
+          group: ${spring.application.name}
+  rabbitmq:
+    host: "localhost"
+    port: 5672
+    username: "guest"
+    password: "guest"
+    connection-timeout: 10s

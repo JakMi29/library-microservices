@@ -1,12 +1,12 @@
 server:
-  port: 8080
+  port: 8082
 spring:
   application:
-    name: "users"
+    name: "rentals"
   profiles:
     active: "prod"
   datasource:
-    url: jdbc:postgresql://localhost:5430/usersdb
+    url: jdbc:postgresql://localhost:5432/rentalsdb
     driver-class-name: org.postgresql.Driver
     username: postgres
     password: postgres
@@ -19,6 +19,21 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   config:
     import: "optional:configserver:http://localhost:8071/"
+  cloud:
+    function:
+      definition: bookAvailable;bookUnavailable
+    stream:
+      bindings:
+        bookAvailable-in-0:
+          destination: book-available
+          group: ${spring.application.name}
+        bookUnavailable-in-0:
+          destination: book-unavailable
+          group: ${spring.application.name}
+        borrowBook-out-0:
+          destination: borrow-book
+        sendMessage-out-0:
+          destination: send-message
   rabbitmq:
     host: "localhost"
     port: 5672
@@ -32,16 +47,6 @@ management:
     web:
       exposure:
         include: "*"
-  endpoint:
-    shutdown:
-      enabled: true
-  info:
-    env:
-      enabled: true
-
-endpoints:
-  shutdown:
-    enabled: true
 
 eureka:
   instance:
