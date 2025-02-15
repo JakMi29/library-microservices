@@ -7,6 +7,7 @@ import com.library.users.infrastructure.database.repository.mapper.UserEntityMap
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -34,5 +35,10 @@ public class UserRepository implements UserDao {
     @Override
     public User updateUser(User user) {
         return mapper.map(repository.save(mapper.map(user)));
+    }
+
+    @Override
+    public List<User> getUsers() {
+        return repository.findAll().stream().map(mapper::map).toList();
     }
 }

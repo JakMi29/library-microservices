@@ -1,10 +1,7 @@
 package com.library.users.controller.rest;
 
 import com.library.users.business.service.UserService;
-import com.library.users.controller.dto.ErrorResponseDto;
-import com.library.users.controller.dto.ResponseDto;
-import com.library.users.controller.dto.UserBuildInfoDto;
-import com.library.users.controller.dto.UserDto;
+import com.library.users.controller.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -18,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @author JakMi29
@@ -38,7 +37,7 @@ public class UsersController {
 
 
     @Operation(
-            summary = "Create Account REST API",
+            summary = "Create user REST API",
             description = "REST API to create users"
     )
     @ApiResponses({
@@ -64,7 +63,7 @@ public class UsersController {
     }
 
     @Operation(
-            summary = "Fetch Account Details REST API",
+            summary = "Fetch user REST API",
             description = "REST API to fetch users"
     )
     @ApiResponses({
@@ -82,7 +81,7 @@ public class UsersController {
     }
     )
     @GetMapping("/fetch")
-    public ResponseEntity<UserDto> fetchAccountDetails(
+    public ResponseEntity<UserDto> fetchUserDetails(
             @RequestParam
             @Pattern(regexp = "(^$|[0-9]{9})", message = "Mobile number must be 9 digits")
             String phoneNumber) {
@@ -91,8 +90,32 @@ public class UsersController {
     }
 
     @Operation(
-            summary = "Update Account Details REST API",
-            description = "REST API to update Customer &  Account details based on a account number"
+            summary = "Fetch users REST API",
+            description = "REST API to fetch users"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "HTTP Status OK"
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "HTTP Status Internal Server Error",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            )
+    }
+    )
+    @GetMapping("/fetch/all")
+    public ResponseEntity<List<UserDto>> fetchUsers() {
+        List<UserDto> users = userService.getUsers();
+        return ResponseEntity.status(HttpStatus.OK).body(users);
+    }
+
+    @Operation(
+            summary = "Update User REST API",
+            description = "REST API to update user"
     )
     @ApiResponses({
             @ApiResponse(
@@ -109,7 +132,7 @@ public class UsersController {
     }
     )
     @PutMapping("/update")
-    public ResponseEntity<ResponseDto> updateAccountDetails(@Valid @RequestBody UserDto userDto) {
+    public ResponseEntity<ResponseDto> updateUserDetails(@Valid @RequestBody UserDto userDto) {
         UserDto user = userService.updateUser(userDto);
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -144,6 +167,17 @@ public class UsersController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(new ResponseDto("200", "Successfully delete user"));
+    }
+
+    @GetMapping("/details")
+    public ResponseEntity<UserDetailsDto> getUserDetails(
+            @RequestParam
+            @Pattern(regexp = "(^$|[0-9]{9})", message = "Mobile number must be 9 digits")
+            String phoneNumber) {
+        UserDetailsDto userDetailsDto = userService.getUserDetails(phoneNumber);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(userDetailsDto);
     }
 
     @GetMapping("/build-info")
