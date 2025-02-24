@@ -7,6 +7,7 @@ import com.library.rental.controller.dto.RentalDto;
 import com.library.rental.domain.NotFoundException;
 import com.library.rental.domain.Rental;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.function.Consumer;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class RentalService {
@@ -69,6 +71,7 @@ public class RentalService {
     }
 
     public List<RentalDto> getUserRentals(Integer userId) {
+        log.info("Fetching user rentals");
         return rentalDao.getByUserId(userId).stream().map(mapper::map).toList();
     }
 

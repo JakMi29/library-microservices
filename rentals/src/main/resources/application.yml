@@ -1,12 +1,12 @@
 server:
-  port: 8084
+  port: 8082
 spring:
   application:
-    name: "books"
+    name: "rentals"
   profiles:
     active: "prod"
   datasource:
-    url: jdbc:postgresql://localhost:5434/booksdb
+    url: jdbc:postgresql://localhost:5432/rentalsdb
     driver-class-name: org.postgresql.Driver
     username: postgres
     password: postgres
@@ -21,19 +21,19 @@ spring:
     import: "optional:configserver:http://localhost:8071/"
   cloud:
     function:
-      definition: borrowBook;returnBook
+      definition: bookAvailable;bookUnavailable
     stream:
       bindings:
-        borrowBook-in-0:
-          destination: borrow-book
-          group: ${spring.application.name}
-        returnBook-in-0:
-          destination: return-book
-          group: ${spring.application.name}
-        bookAvailable-out-0:
+        bookAvailable-in-0:
           destination: book-available
-        bookUnavailable-out-0:
+          group: ${spring.application.name}
+        bookUnavailable-in-0:
           destination: book-unavailable
+          group: ${spring.application.name}
+        borrowBook-out-0:
+          destination: borrow-book
+        sendMessage-out-0:
+          destination: send-message
   rabbitmq:
     host: "localhost"
     port: 5672
@@ -45,6 +45,23 @@ management:
     web:
       exposure:
         include: "*"
+  health:
+    readiness-state:
+      enabled: true
+    liveness-state:
+      enabled: true
+  endpoint:
+    shutdown:
+      enabled: true
+    health:
+      probes:
+        enabled: true
+  info:
+    env:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
 
 eureka:
   instance:
@@ -54,3 +71,7 @@ eureka:
     registerWithEureka: true
     serviceUrl:
       defaultZone: http://localhost:8070/eureka/
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"

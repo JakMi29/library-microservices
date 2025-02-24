@@ -35,6 +35,16 @@ services:
       file: common-config.yml
       service: microservice-db-config
 
+  rentalsdb:
+    container_name: rentalsdb
+    ports:
+      - 5434:5432
+    environment:
+      POSTGRES_DB: rentalsdb
+    extends:
+      file: common-config.yml
+      service: microservice-db-config
+
   configserver:
     image: "configserver"
     container_name: configserver-ms
@@ -53,6 +63,26 @@ services:
       file: common-config.yml
       service: microservice-base-config
 
+  eurekaserver:
+    image: "eurekaserver"
+    container_name: eurekaserver-ms
+    ports:
+      - "8070:8070"
+    depends_on:
+      configserver:
+        condition: service_healthy
+    healthcheck:
+      test: "curl --fail --silent localhost:8070/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    extends:
+      file: common-config.yml
+      service: microservice-configserver-config
+    environment:
+      SPRING_APPLICATION_NAME: "eurekaserver"
+
   users:
     image: "users"
     container_name: users-ms
@@ -63,29 +93,115 @@ services:
         condition: service_healthy
       configserver:
         condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
+    healthcheck:
+      test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit 1"
+      interval: 20s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
     environment:
       SPRING_APPLICATION_NAME: "users"
       SPRING_DATASOURCE_URL: "jdbc:postgresql://usersdb:5432/usersdb"
     extends:
       file: common-config.yml
-      service: microservice-configserver-config
+      service: microservice-eureka-config
 
   books:
-    image: "library-book"
+    image: "books"
     container_name: books-ms
     ports:
-      - "8090:8090"
+      - "8081:8081"
     depends_on:
+      rabbit:
+        condition: service_healthy
       booksdb:
         condition: service_healthy
       configserver:
         condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
+    healthcheck:
+      test: "curl --fail --silent localhost:8081/actuator/health/readiness | grep UP || exit 1"
+      interval: 20s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
     environment:
       SPRING_APPLICATION_NAME: "books"
       SPRING_DATASOURCE_URL: "jdbc:postgresql://booksdb:5432/booksdb"
     extends:
       file: common-config.yml
-      service: microservice-configserver-config
+      service: microservice-eureka-config
+
+  rentals:
+    image: "rentals"
+    container_name: rentals-ms
+    ports:
+      - "8082:8082"
+    depends_on:
+      rabbit:
+        condition: service_healthy
+      rentalsdb:
+        condition: service_healthy
+      configserver:
+        condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
+    healthcheck:
+      test: "curl --fail --silent localhost:8082/actuator/health/readiness | grep UP || exit 1"
+      interval: 20s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    environment:
+      SPRING_APPLICATION_NAME: "rentals"
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://rentalsdb:5432/rentalsdb"
+    extends:
+      file: common-config.yml
+      service: microservice-eureka-config
+
+  message:
+    image: "message"
+    container_name: message-ms
+    ports:
+      - "8083:8083"
+    depends_on:
+      configserver:
+        condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
+    healthcheck:
+      test: "curl --fail --silent localhost:8083/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    environment:
+      SPRING_APPLICATION_NAME: "message"
+    extends:
+      file: common-config.yml
+      service: microservice-eureka-config
+
+  gatewayserver:
+    image: "gatewayserver"
+    container_name: gatewayserver-ms
+    ports:
+      - "8072:8072"
+    depends_on:
+      books:
+        condition: service_healthy
+      rentals:
+        condition: service_healthy
+      users:
+        condition: service_healthy
+    environment:
+      SPRING_APPLICATION_NAME: "gatewayserver"
+      OTEL_SERVICE_NAME: "gatewayserver"
+    extends:
+      file: common-config.yml
+      service: microservice-eureka-config
 
 networks:
   library:

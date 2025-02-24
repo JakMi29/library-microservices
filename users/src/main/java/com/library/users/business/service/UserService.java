@@ -9,12 +9,13 @@ import com.library.users.controller.dto.UserDto;
 import com.library.users.domain.NotFoundException;
 import com.library.users.domain.User;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-
+@Slf4j
 @Service
 @AllArgsConstructor
 public class UserService {
@@ -27,6 +28,7 @@ public class UserService {
         User user=userDao.getUserByPhoneNumber(phoneNumber).orElseThrow(
                 () -> new NotFoundException(String.format("User with phone number: %s do not exist", phoneNumber)));
         ResponseEntity<List<RentalDto>> rentals= rentalsFeignClient.fetchUserRentals(user.getId());
+        log.info("Fetching user details");
         return UserDetailsDto.builder()
                 .user(mapper.map(user))
                 .rentals(rentals.getBody())

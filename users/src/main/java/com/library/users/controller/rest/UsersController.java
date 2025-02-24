@@ -2,6 +2,7 @@ package com.library.users.controller.rest;
 
 import com.library.users.business.service.UserService;
 import com.library.users.controller.dto.*;
+import io.github.resilience4j.retry.annotation.Retry;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -17,6 +18,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 /**
  * @author JakMi29
@@ -180,11 +183,24 @@ public class UsersController {
                 .body(userDetailsDto);
     }
 
+    @Retry(name = "getBuildInfo", fallbackMethod = "getBuildInfoFallback")
     @GetMapping("/build-info")
     public ResponseEntity<UserBuildInfoDto> getBuildInfo() {
+        if (new Random().nextBoolean()) {
+            throw new RuntimeException("Random fail to test fallback method");
+        }
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(bookBuildInfoDto);
+    }
+
+    public ResponseEntity<UserBuildInfoDto> getBuildInfoFallback(Throwable throwable) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new UserBuildInfoDto("Users service fallback ", Map.of(
+                        "developer", "JakMi29",
+                        "version", "1.0"
+                )));
     }
 
 }
