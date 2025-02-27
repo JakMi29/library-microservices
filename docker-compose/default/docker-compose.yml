@@ -256,37 +256,37 @@ services:
       service: network-deploy-service
 
   usersdb:
+    image: postgres:latest
     container_name: usersdb
     ports:
       - 5432:5432
     environment:
       POSTGRES_DB: usersdb
-    extends:
-      file: common-config.yml
-      service: microservice-db-config
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
 
-  booksdb:
-    container_name: booksdb
-    ports:
-      - 5433:5432
-    environment:
-      POSTGRES_DB: booksdb
-    extends:
-      file: common-config.yml
-      service: microservice-db-config
+    booksdb:
+      image: postgres:latest
+      container_name: booksdb
+      ports:
+        - 5433:5432
+      environment:
+        POSTGRES_DB: booksdb
+        POSTGRES_USER: user
+        POSTGRES_PASSWORD: password
 
-  rentalsdb:
-    container_name: rentalsdb
-    ports:
-      - 5434:5432
-    environment:
-      POSTGRES_DB: rentalsdb
-    extends:
-      file: common-config.yml
-      service: microservice-db-config
+    rentalsdb:
+      image: postgres:latest
+      container_name: rentalsdb
+      ports:
+        - 5434:5432
+      environment:
+        POSTGRES_DB: rentalsdb
+        POSTGRES_USER: user
+        POSTGRES_PASSWORD: password
 
   configserver:
-    image: "configserver"
+    image: "janzkolna/configserver"
     container_name: configserver-ms
     ports:
       - "8071:8071"
@@ -304,7 +304,7 @@ services:
       service: microservice-base-config
 
   eurekaserver:
-    image: "eurekaserver"
+    image: "janzkolna/eurekaserver"
     container_name: eurekaserver-ms
     ports:
       - "8070:8070"
@@ -324,7 +324,7 @@ services:
       SPRING_APPLICATION_NAME: "eurekaserver"
 
   users:
-    image: "users"
+    image: "janzkolna/users"
     container_name: users-ms
     depends_on:
       usersdb:
@@ -347,7 +347,7 @@ services:
       service: microservice-eureka-config
 
   books:
-    image: "books"
+    image: "janzkolna/books"
     container_name: books-ms
     depends_on:
       rabbit:
@@ -372,7 +372,7 @@ services:
       service: microservice-eureka-config
 
   rentals:
-    image: "rentals"
+    image: "janzkolna/rentals"
     container_name: rentals-ms
     depends_on:
       rabbit:
@@ -397,7 +397,7 @@ services:
       service: microservice-eureka-config
 
   message:
-    image: "message"
+    image: "janzkolna/message"
     container_name: message-ms
     depends_on:
       configserver:
@@ -417,7 +417,7 @@ services:
       service: microservice-eureka-config
 
   gatewayserver:
-    image: "gatewayserver"
+    image: "janzkolna/gatewayserver"
     container_name: gatewayserver-ms
     ports:
       - "8072:8072"

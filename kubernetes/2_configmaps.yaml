@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: library-configmap
+data:
+  SPRING_PROFILES_ACTIVE: prod
+  SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071/"
+  EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eurekaserver:8070/eureka/"
+  CONFIGSERVER_APPLICATION_NAME: configserver
+  EUREKA_APPLICATION_NAME: eurekaserver
+  BOOKS_APPLICATION_NAME: books
+  USERS_APPLICATION_NAME: users
+  RENTALS_APPLICATION_NAME: rentals
+  MESSAGE_APPLICATION_NAME: message
+  GATEWAY_APPLICATION_NAME: gatewayserver
+  KEYCLOAK_ADMIN: admin
+  KEYCLOAK_ADMIN_PASSWORD: admin
+  SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK-SET-URI: "http://keycloak:7080/realms/master/protocol/openid-connect/certs"
+  BOOKS_DATASOURCE_URL: "jdbc:postgresql://host.docker.internal:5431/books"
+  USERS_DATASOURCE_URL: "jdbc:postgresql://host.docker.internal:5430/users"
+  RENTALS_DATASOURCE_URL: "jdbc:postgresql://host.docker.internal:5432/rentals"
